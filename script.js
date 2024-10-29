@@ -5,17 +5,31 @@ import { render, html } from "https://cdn.jsdelivr.net/npm/lit-html@3/+esm";
 
 const fileInput = document.getElementById("fileInput");
 const controls = document.getElementById("controls");
+const descriptionBox = document.getElementById("description-box");
+const demosDiv = document.getElementById("demos");
 let data, nodeLinks;
+let demosArray = [];
 
 document.addEventListener("DOMContentLoaded", () => {
+  fetchAndRenderDemos();
   fileInput.addEventListener("change", handleFileUpload);
-
-  // Add event listener for demo clicks
-  document.getElementById("demos").addEventListener("click", handleDemoClick);
+  demosDiv.addEventListener("click", handleCardClick);
 });
+
+async function handleCardClick(event) {
+  const target = event.target.closest(".demo");
+  if (!target) return;
+  event.preventDefault();
+  processCSVData(await fetch(target.href).then((r) => r.text()));
+  const index = target.getAttribute("data-index");
+  descriptionBox.classList.remove("d-none");
+  document.getElementById("title").textContent = demosArray[index].title;
+  document.getElementById("description").textContent = demosArray[index].description;
+}
 
 function handleFileUpload(event) {
   const file = event.target.files[0];
+  descriptionBox.classList.toggle("d-none", file);
   if (file) {
     const reader = new FileReader();
     reader.onload = (e) => processCSVData(e.target.result);
@@ -25,19 +39,10 @@ function handleFileUpload(event) {
   }
 }
 
-async function handleDemoClick(event) {
-  const demoLink = event.target.closest(".demo");
-  if (demoLink) {
-    event.preventDefault();
-    processCSVData(await fetch(demoLink.href).then((r) => r.text()));
-  }
-}
-
 function processCSVData(csvContent) {
   data = d3.csvParse(csvContent);
   renderControls(data.columns);
 }
-
 const nodeColor = (d) => (d.key == "source" ? "rgba(255,0,0,0.5)" : "rgba(0,0,255,0.5)");
 
 function renderControls(headers) {
@@ -147,3 +152,27 @@ function brush(nodes) {
   `;
   render(listGroupTemplate, document.getElementById("selection"));
 }
+
+const fetchAndRenderDemos = async () => {
+  try {
+    const { demos } = await (await fetch("config.json")).json();
+    demosArray = demos;
+    render(
+      demos.map(
+        (demo, index) => html`
+          <div class="col py-3">
+            <a class="demo card h-100 text-decoration-none" data-index="${index}" href="${demo.href}">
+              <div class="card-body">
+                <h5 class="card-title">${demo.title}</h5>
+                <p class="card-text">${demo.overview}</p>
+              </div>
+            </a>
+          </div>
+        `
+      ),
+      demosDiv
+    );
+  } catch (error) {
+    console.error("Error fetching config.json:", error);
+  }
+};

@@ -1,0 +1,22 @@
+{
+    "demos":[
+        {
+            "title":"Co-authors",
+            "overview":"Co-authors relationships of Arxiv papers related to LLMs",
+            "description":"'Coauthors' presents a graph visualizing the collaborative relationships between authors and co-authors in Arxiv papers focused on Large Language Models (LLMs), highlighting key contributors and their research networks.",
+            "href":"https://raw.githubusercontent.com/gramener/gramex-network/main/docs/coauthors.csv"
+        },
+        {
+            "title":"Religion by Country",
+            "overview":"Explore the network of religions practiced by country",
+            "description":"'Religion by Country' displays a network graph that explores the distribution and relationships of religions practiced across different countries, offering insights into cultural and religious diversity worldwide.",
+            "href":"https://raw.githubusercontent.com/gramener/gramex-network/main/docs/country-religion.csv"
+        },
+        {
+            "title":"Aircraft Arrival Network in the USA 2023",
+            "overview":"Analyze the network to gain insights into flights arriving at a specific airport.",
+            "description":"'Aircraft Arrival Network' illustrates the connections between various aircraft and the airports they arrive at across the USA, providing insights into air traffic patterns and airport activity",
+            "href":"https://raw.githubusercontent.com/krishna-gramener/network/refs/heads/main/flight-modified.csv"
+        }
+    ]
+}
