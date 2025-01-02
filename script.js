@@ -38,7 +38,8 @@ function processCSVData(csvContent) {
   renderControls(data.columns);
 }
 
-const nodeColor = (d) => (d.key == "source" ? "rgba(255,0,0,0.5)" : "rgba(0,0,255,0.5)");
+const nodeColor = (d) =>
+  d.key == "source" ? "rgba(255,0,0,0.5)" : "rgba(0,0,255,0.5)";
 
 function renderControls(headers) {
   headers = headers.filter((d) => d.trim());
@@ -48,7 +49,12 @@ function renderControls(headers) {
         <label for="sourceSelect" class="form-label">Source</label>
         <select id="sourceSelect" name="source" class="form-select">
           ${headers.map(
-            (header, index) => html` <option value="${header}" ?selected=${index === 0}>${header}</option> `
+            (header, index) =>
+              html`
+                <option value="${header}" ?selected=${index === 0}>
+                  ${header}
+                </option>
+              `
           )}
         </select>
       </div>
@@ -56,7 +62,12 @@ function renderControls(headers) {
         <label for="targetSelect" class="form-label">Target</label>
         <select id="targetSelect" name="target" class="form-select">
           ${headers.map(
-            (header, index) => html` <option value="${header}" ?selected=${index === 1}>${header}</option> `
+            (header, index) =>
+              html`
+                <option value="${header}" ?selected=${index === 1}>
+                  ${header}
+                </option>
+              `
           )}
         </select>
       </div>
@@ -64,14 +75,26 @@ function renderControls(headers) {
         <label for="metricSelect" class="form-label">Metric</label>
         <select id="metricSelect" name="metric" class="form-select">
           <option selected value="">Count</option>
-          ${headers.map((header) => html`<option value="${header}">${header}</option>`)}
+          ${headers.map(
+            (header) => html`<option value="${header}">${header}</option>`
+          )}
         </select>
       </div>
       <div class="col-md-6">
         <label for="thresholdRange" class="form-label">Threshold</label>
         <div class="d-flex">
-          <input type="range" class="form-range" id="thresholdRange" min="0" max="1" step="0.01" value="0.5" />
-          <span id="thresholdValue" class="ms-2 text-end" style="width: 3em">50%</span>
+          <input
+            type="range"
+            class="form-range"
+            id="thresholdRange"
+            min="0"
+            max="1"
+            step="0.01"
+            value="0.5"
+          />
+          <span id="thresholdValue" class="ms-2 text-end" style="width: 3em"
+            >50%</span
+          >
         </div>
       </div>
     </form>
@@ -90,7 +113,12 @@ function renderControls(headers) {
 }
 
 controls.addEventListener("change", (e) => {
-  if (e.target.id == "sourceSelect" || e.target.id == "targetSelect" || e.target.id == "metricSelect") updateNetwork();
+  if (
+    e.target.id == "sourceSelect" ||
+    e.target.id == "targetSelect" ||
+    e.target.id == "metricSelect"
+  )
+    updateNetwork();
 });
 
 function updateNetwork() {
@@ -111,7 +139,9 @@ function updateNetwork() {
 function drawNetwork() {
   const { nodes, links } = nodeLinks;
   const threshold = +document.getElementById("thresholdRange").value;
-  const filteredLinks = links.filter((link) => link._rank / links.length >= threshold);
+  const filteredLinks = links.filter(
+    (link) => link._rank / links.length >= threshold
+  );
   const graph = network("#network", { nodes, links: filteredLinks, brush, d3 });
 
   graph.nodes
@@ -137,7 +167,11 @@ function brush(nodes) {
             style="background-color: ${nodeColor(node)}"
           >
             ${node.value || "-"}
-            <span class="badge bg-${node.key === "source" ? "danger" : "primary"} rounded-pill">
+            <span
+              class="badge bg-${node.key === "source"
+                ? "danger"
+                : "primary"} rounded-pill"
+            >
               ${cols[node.key]}
             </span>
           </li>
