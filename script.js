@@ -10,38 +10,37 @@ let data, nodeLinks;
 document.addEventListener("DOMContentLoaded", () => {
   fileInput.addEventListener("change", handleFileUpload);
 
+  const cardTemplate = (card) => html`
+    <div class="col py-3">
+      <a class="demo card h-100 text-decoration-none" href="${card.link}">
+        <div class="card-body">
+          <h5 class="card-title">${card.title}</h5>
+          <p class="card-text">${card.description}</p>
+        </div>
+      </a>
+    </div>
+  `;
+
   fetch("config.json")
     .then((response) => response.json())
     .then((data) => {
-      const container = document.querySelector('#demos .row');
+      const container = document.querySelector("#demos .row");
+      let cardsHtml = html``;
       data.cards.forEach((card) => {
-        const cardElement = document.createElement("div");
-        cardElement.className = "col py-3";
-        const anchorElement = document.createElement("a");
-        anchorElement.className = "demo card h-100 text-decoration-none";
-        anchorElement.href = card.link;
-        const cardBody = document.createElement("div");
-        cardBody.className = "card-body";
-        const cardTitle = document.createElement("h5");
-        cardTitle.className = "card-title";
-        cardTitle.innerText = card.title;
-        const cardText = document.createElement("p");
-        cardText.className = "card-text";
-        cardText.innerText = card.description;
+        cardsHtml = html`${cardsHtml}${cardTemplate(card)}`;
+      });
+      render(cardsHtml, container);
 
-        cardBody.appendChild(cardTitle);
-        cardBody.appendChild(cardText);
-        anchorElement.appendChild(cardBody);
-        cardElement.appendChild(anchorElement);
-        container.appendChild(cardElement);
-
-        cardElement.addEventListener("click", function (event) {
+      container.addEventListener("click", function (event) {
+        if (event.target.closest(".demo")) {
           event.preventDefault();
+          const card = data.cards.find(
+            (c) => c.link === event.target.closest(".demo").href
+          );
           document.getElementById("card-body-title").innerText = card.title;
           document.getElementById("card-body-content").innerText = card.body;
           document.getElementById("card-body-display").style.display = "block";
-          document.getElementById("card-body-display").style.border = "1px solid grey";
-        });
+        }
       });
     })
     .catch((error) => console.error("Error fetching the config file:", error));
