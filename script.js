@@ -10,6 +10,41 @@ let data, nodeLinks;
 document.addEventListener("DOMContentLoaded", () => {
   fileInput.addEventListener("change", handleFileUpload);
 
+  const cardTemplate = (card) => html`
+    <div class="col py-3">
+      <a class="demo card h-100 text-decoration-none" href="${card.link}">
+        <div class="card-body">
+          <h5 class="card-title">${card.title}</h5>
+          <p class="card-text">${card.description}</p>
+        </div>
+      </a>
+    </div>
+  `;
+
+  fetch("config.json")
+    .then((response) => response.json())
+    .then((data) => {
+      const container = document.querySelector("#demos .row");
+      let cardsHtml = html``;
+      data.cards.forEach((card) => {
+        cardsHtml = html`${cardsHtml}${cardTemplate(card)}`;
+      });
+      render(cardsHtml, container);
+
+      container.addEventListener("click", function (event) {
+        if (event.target.closest(".demo")) {
+          event.preventDefault();
+          const card = data.cards.find(
+            (c) => c.link === event.target.closest(".demo").href
+          );
+          document.getElementById("card-body-title").innerText = card.title;
+          document.getElementById("card-body-content").innerText = card.body;
+          document.getElementById("card-body-display").style.display = "block";
+        }
+      });
+    })
+    .catch((error) => console.error("Error fetching the config file:", error));
+
   // Add event listener for demo clicks
   document.getElementById("demos").addEventListener("click", handleDemoClick);
 });
@@ -38,7 +73,8 @@ function processCSVData(csvContent) {
   renderControls(data.columns);
 }
 
-const nodeColor = (d) => (d.key == "source" ? "rgba(255,0,0,0.5)" : "rgba(0,0,255,0.5)");
+const nodeColor = (d) =>
+  d.key == "source" ? "rgba(255,0,0,0.5)" : "rgba(0,0,255,0.5)";
 
 function renderControls(headers) {
   headers = headers.filter((d) => d.trim());
@@ -48,7 +84,12 @@ function renderControls(headers) {
         <label for="sourceSelect" class="form-label">Source</label>
         <select id="sourceSelect" name="source" class="form-select">
           ${headers.map(
-            (header, index) => html` <option value="${header}" ?selected=${index === 0}>${header}</option> `
+            (header, index) =>
+              html`
+                <option value="${header}" ?selected=${index === 0}>
+                  ${header}
+                </option>
+              `
           )}
         </select>
       </div>
@@ -56,7 +97,12 @@ function renderControls(headers) {
         <label for="targetSelect" class="form-label">Target</label>
         <select id="targetSelect" name="target" class="form-select">
           ${headers.map(
-            (header, index) => html` <option value="${header}" ?selected=${index === 1}>${header}</option> `
+            (header, index) =>
+              html`
+                <option value="${header}" ?selected=${index === 1}>
+                  ${header}
+                </option>
+              `
           )}
         </select>
       </div>
@@ -64,14 +110,26 @@ function renderControls(headers) {
         <label for="metricSelect" class="form-label">Metric</label>
         <select id="metricSelect" name="metric" class="form-select">
           <option selected value="">Count</option>
-          ${headers.map((header) => html`<option value="${header}">${header}</option>`)}
+          ${headers.map(
+            (header) => html`<option value="${header}">${header}</option>`
+          )}
         </select>
       </div>
       <div class="col-md-6">
         <label for="thresholdRange" class="form-label">Threshold</label>
         <div class="d-flex">
-          <input type="range" class="form-range" id="thresholdRange" min="0" max="1" step="0.01" value="0.5" />
-          <span id="thresholdValue" class="ms-2 text-end" style="width: 3em">50%</span>
+          <input
+            type="range"
+            class="form-range"
+            id="thresholdRange"
+            min="0"
+            max="1"
+            step="0.01"
+            value="0.5"
+          />
+          <span id="thresholdValue" class="ms-2 text-end" style="width: 3em"
+            >50%</span
+          >
         </div>
       </div>
     </form>
@@ -90,7 +148,12 @@ function renderControls(headers) {
 }
 
 controls.addEventListener("change", (e) => {
-  if (e.target.id == "sourceSelect" || e.target.id == "targetSelect" || e.target.id == "metricSelect") updateNetwork();
+  if (
+    e.target.id == "sourceSelect" ||
+    e.target.id == "targetSelect" ||
+    e.target.id == "metricSelect"
+  )
+    updateNetwork();
 });
 
 function updateNetwork() {
@@ -111,7 +174,9 @@ function updateNetwork() {
 function drawNetwork() {
   const { nodes, links } = nodeLinks;
   const threshold = +document.getElementById("thresholdRange").value;
-  const filteredLinks = links.filter((link) => link._rank / links.length >= threshold);
+  const filteredLinks = links.filter(
+    (link) => link._rank / links.length >= threshold
+  );
   const graph = network("#network", { nodes, links: filteredLinks, brush, d3 });
 
   graph.nodes
@@ -137,7 +202,11 @@ function brush(nodes) {
             style="background-color: ${nodeColor(node)}"
           >
             ${node.value || "-"}
-            <span class="badge bg-${node.key === "source" ? "danger" : "primary"} rounded-pill">
+            <span
+              class="badge bg-${node.key === "source"
+                ? "danger"
+                : "primary"} rounded-pill"
+            >
               ${cols[node.key]}
             </span>
           </li>
