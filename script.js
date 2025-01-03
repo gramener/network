@@ -10,6 +10,42 @@ let data, nodeLinks;
 document.addEventListener("DOMContentLoaded", () => {
   fileInput.addEventListener("change", handleFileUpload);
 
+  fetch("config.json")
+    .then((response) => response.json())
+    .then((data) => {
+      const container = document.querySelector('#demos .row');
+      data.cards.forEach((card) => {
+        const cardElement = document.createElement("div");
+        cardElement.className = "col py-3";
+        const anchorElement = document.createElement("a");
+        anchorElement.className = "demo card h-100 text-decoration-none";
+        anchorElement.href = card.link;
+        const cardBody = document.createElement("div");
+        cardBody.className = "card-body";
+        const cardTitle = document.createElement("h5");
+        cardTitle.className = "card-title";
+        cardTitle.innerText = card.title;
+        const cardText = document.createElement("p");
+        cardText.className = "card-text";
+        cardText.innerText = card.description;
+
+        cardBody.appendChild(cardTitle);
+        cardBody.appendChild(cardText);
+        anchorElement.appendChild(cardBody);
+        cardElement.appendChild(anchorElement);
+        container.appendChild(cardElement);
+
+        cardElement.addEventListener("click", function (event) {
+          event.preventDefault();
+          document.getElementById("card-body-title").innerText = card.title;
+          document.getElementById("card-body-content").innerText = card.body;
+          document.getElementById("card-body-display").style.display = "block";
+          document.getElementById("card-body-display").style.border = "1px solid grey";
+        });
+      });
+    })
+    .catch((error) => console.error("Error fetching the config file:", error));
+
   // Add event listener for demo clicks
   document.getElementById("demos").addEventListener("click", handleDemoClick);
 });
